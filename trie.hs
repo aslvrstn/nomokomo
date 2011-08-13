@@ -1,3 +1,5 @@
+module Trie where
+
 type Trie = [TrieEdge]
 
 data TrieEdge = TrieEdge Char Bool Trie deriving Show
