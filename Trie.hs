@@ -26,3 +26,13 @@ fromWord :: String -> Trie
 fromWord [] = []
 fromWord (c:[]) = [TrieEdge c True []]
 fromWord (c:cs) = [TrieEdge c False (fromWord cs)]
+
+member :: String -> Trie -> Bool
+member [] _ = False
+member _ [] = False
+member w@(c:[]) ((TrieEdge ec ew et):ts) = if c == ec
+                                         then ew
+				         else member w ts
+member w@(c:cs) ((TrieEdge ec ew et):ts) = if c == ec
+                                         then member cs et
+				         else member w ts
