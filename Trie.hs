@@ -17,10 +17,10 @@ insert [] t = t
 insert w [] = fromWord w
 insert w@(c:[]) ((e@(TrieEdge ec ew et)):ts) = if c == ec
                                                then (TrieEdge ec True et):ts
-					       else e:(insert w ts)
+                                               else e:(insert w ts)
 insert w@(c:cs) ((e@(TrieEdge ec ew et)):ts) = if c == ec
                                                then (TrieEdge ec ew (insert cs et)):ts
-					       else e:(insert w ts)
+                                               else e:(insert w ts)
 
 fromWord :: String -> Trie
 fromWord [] = []
@@ -32,7 +32,7 @@ member [] _ = False
 member _ [] = False
 member w@(c:[]) ((TrieEdge ec ew et):ts) = if c == ec
                                          then ew
-				         else member w ts
+                                         else member w ts
 member w@(c:cs) ((TrieEdge ec ew et):ts) = if c == ec
                                          then member cs et
-				         else member w ts
+                                         else member w ts
