@@ -16,8 +16,8 @@ insert :: String -> Trie -> Trie
 insert [] t = t
 insert w [] = fromWord w
 insert w@(c:[]) ((e@(TrieEdge ec ew et)):ts) = if c == ec
-                                         then ((TrieEdge ec True et):ts)
-					 else e:(insert w ts)
+                                               then (TrieEdge ec True et):ts
+					       else e:(insert w ts)
 insert w@(c:cs) ((e@(TrieEdge ec ew et)):ts) = if c == ec
                                                then (TrieEdge ec ew (insert cs et)):ts
 					       else e:(insert w ts)
