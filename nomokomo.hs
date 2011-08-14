@@ -16,6 +16,9 @@ rightAdj i row = takeWhileJust (drop (i+1) row)
 
 takeWhileJust = catMaybes . (takeWhile isJust)
 
+fromString :: String -> [Maybe Char]
+fromString s = map (\c -> if c == ' ' then Nothing else Just c) s
+
 main = do
          (dictFile:_) <- getArgs
          dict <- readFile dictFile
