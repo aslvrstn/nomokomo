@@ -4,20 +4,23 @@ import Data.Maybe
 
 import Trie
 
+type Board = [[Maybe Char]]
+
 data Potential = Filled Char | Empty [Char] deriving Show
 
 crossChecks :: Trie -> [Maybe Char] -> [Potential]
 crossChecks dict row = map checks [0..length row-1]
                        where checks i = case (row!!i) of Just l -> Filled l
-                                                         Nothing -> Empty (filter (\c -> member (leftAdj i row ++ [c] ++ rightAdj i row) dict) ['a'..'z'])
+                                                         Nothing -> Empty (filter (\c -> let w = leftAdj i row ++ [c] ++ rightAdj i row
+                                                                                         in member w dict || w == [c]) ['a'..'z'])
 
 leftAdj i row = reverse $ takeWhileJust (drop (length row-i) (reverse row))
 rightAdj i row = takeWhileJust (drop (i+1) row)
 
 takeWhileJust = catMaybes . (takeWhile isJust)
 
-fromString :: String -> [Maybe Char]
-fromString s = map (\c -> if c == ' ' then Nothing else Just c) s
+fromString :: [String] -> Board
+fromString s = map (map (\c -> if c == ' ' then Nothing else Just c)) s
 
 main = do
          (dictFile:_) <- getArgs
