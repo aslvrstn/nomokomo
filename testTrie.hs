@@ -3,4 +3,7 @@ import Trie
 import Data.List
 import Test.QuickCheck
 
-main = quickCheck (\ws -> delete "" ((nub.sort) ws) == (sort $ (toList.fromList) ws))
+args = Args Nothing 200 500 20 True
+gen = listOf . listOf1 $ elements ['a'..'z']
+
+main = verboseCheckWith args (forAll gen (\ws -> (nub.sort) ws == (sort $ (toList.fromList) ws)))
