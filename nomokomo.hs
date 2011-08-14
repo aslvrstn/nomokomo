@@ -14,10 +14,10 @@ crossChecks dict row = map checks [0..length row-1]
                                                          Nothing -> Empty (filter (\c -> let w = leftAdj i row ++ [c] ++ rightAdj i row
                                                                                          in member w dict || w == [c]) ['a'..'z'])
 
-leftAdj i row = reverse $ takeWhileJust (drop (length row-i) (reverse row))
+leftAdj i row = reverse . takeWhileJust . drop (length row-i) . reverse $ row
 rightAdj i row = takeWhileJust (drop (i+1) row)
 
-takeWhileJust = catMaybes . (takeWhile isJust)
+takeWhileJust = catMaybes . takeWhile isJust
 
 fromString :: [String] -> Board
 fromString s = map (map (\c -> if c == ' ' then Nothing else Just c)) s
@@ -25,4 +25,4 @@ fromString s = map (map (\c -> if c == ' ' then Nothing else Just c)) s
 main = do
          (dictFile:_) <- getArgs
          dict <- readFile dictFile
-         putStrLn $ show ((fromList.lines) dict)
+         putStrLn $ show . fromList.lines $ dict
