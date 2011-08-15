@@ -8,6 +8,13 @@ type Board = [[Maybe Char]]
 
 data Potential = Filled Char | Empty [Char] deriving Show
 
+banchors :: Board -> [[Bool]]
+banchors board = zipWith (zipWith (||)) (map anchors board) (transpose $ map anchors (transpose board))
+
+anchors :: [Maybe Char] -> [Bool]
+anchors row = let sRow = Nothing:row++[Nothing]
+              in map (\i -> isNothing (sRow!!i) && (isJust (sRow!!(i-1)) || isJust (sRow!!(i+1)))) [1..length row]
+
 crossChecks :: Trie -> [Maybe Char] -> [Potential]
 crossChecks dict row = map checks [0..length row-1]
                        where checks i = case (row!!i) of Just l -> Filled l
