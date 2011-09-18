@@ -15,8 +15,8 @@ rwords dict (a:at) ps@(p:pt) = (if a then pwords dict ps else []) : rwords dict 
                                where pwords dict ps = matching dict $ map unp ps
 
 unp :: Potential -> String
-unp Filled c = [c]
-unp Empty s = s
+unp (Filled c) = [c]
+unp (Empty s) = s
 
 pwords :: Trie -> [Potential] -> [String]
 pwords dict [] = []
