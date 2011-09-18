@@ -31,8 +31,17 @@ member :: String -> Trie -> Bool
 member [] _ = False
 member _ [] = False
 member w@(c:[]) ((TrieEdge ec ew et):ts) = if c == ec
-                                         then ew
-                                         else member w ts
+                                           then ew
+                                           else member w ts
 member w@(c:cs) ((TrieEdge ec ew et):ts) = if c == ec
-                                         then member cs et
-                                         else member w ts
+                                           then member cs et
+                                           else member w ts
+
+matching :: Trie -> [String] -> [String]
+matching t ss = map reverse $ matching' t ss []
+                where matching' _ [] _ = []
+                      matching' [] _ _ = []
+                      matching' t ([]:ss) pw = matching' t ss pw
+                      matching' ((TrieEdge ec ew et):ts) p@((c:cs):ss) pw = if c == ec
+                                                                            then (if ew then (c:pw):(matching' et ss (c:pw)) else (matching' et ss (c:pw))) ++ (matching' ts (cs:ss) pw)
+                                                                            else matching' ts p pw
