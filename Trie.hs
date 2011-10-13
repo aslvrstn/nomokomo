@@ -10,6 +10,9 @@ toList :: Trie -> [String]
 toList = Data.Map.foldWithKey (\c (TrieEdge w t) r -> let rest = (map (c:) (toList t))
                                                       in r ++ (if w then [c]:rest else rest)) []
 
+empty :: Trie
+empty = Data.Map.empty
+
 fromList :: [String] -> Trie
 fromList = foldr insert Data.Map.empty
 

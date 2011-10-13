@@ -9,18 +9,14 @@ type Board = [[Maybe Char]]
 -- TODO: Potential is maybe a Monad?
 data Potential = Filled Char | Empty [Char] deriving Show
 
-rwords :: Trie -> [Bool] -> [Potential] -> [[String]]
+rwords :: Trie -> [Bool] -> [Potential] -> [Trie]
 rwords dict [] [] = []
-rwords dict (a:at) ps@(p:pt) = (if a then pwords dict ps else []) : rwords dict at pt
+rwords dict (a:at) ps@(p:pt) = (if a then pwords dict ps else empty) : rwords dict at pt
                                where pwords dict ps = matching dict $ map unp ps
 
 unp :: Potential -> String
 unp (Filled c) = [c]
 unp (Empty s) = s
-
-pwords :: Trie -> [Potential] -> [String]
-pwords dict [] = []
-pwords dict (p:pt) = []
 
 banchors :: Board -> [[Bool]]
 banchors board = zipWith (zipWith (||)) (map anchors board) (transpose $ map anchors (transpose board))
