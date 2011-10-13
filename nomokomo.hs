@@ -45,5 +45,7 @@ fromString s = map (map (\c -> if c == ' ' then Nothing else Just c)) s
 
 main = do
          (dictFile:_) <- getArgs
-         dict <- readFile dictFile
-         putStrLn $ show . fromList.lines $ dict
+         dictf <- readFile dictFile
+         let dict = fromList.lines $ dictf
+         let board = fromString ["  ell  "]
+         putStrLn $ show (map (\r -> rwords dict (anchors r) (crossChecks dict r)) board)
