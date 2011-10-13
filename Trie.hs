@@ -1,47 +1,30 @@
 module Trie where
 
-type Trie = [TrieEdge]
+import qualified Data.Map
 
-data TrieEdge = TrieEdge Char Bool Trie deriving Show
+type Trie = Data.Map.Map Char TrieEdge
+
+data TrieEdge = TrieEdge Bool Trie deriving (Show, Eq)
 
 toList :: Trie -> [String]
-toList = concatMap toList'
-    where toList' (TrieEdge c w t) = let rest = (map (c:) (toList t))
-                                     in if w then [c]:rest else rest
+toList = Data.Map.foldWithKey (\c (TrieEdge w t) r -> let rest = (map (c:) (toList t))
+                                                      in r ++ (if w then [c]:rest else rest)) []
 
 fromList :: [String] -> Trie
-fromList = foldr insert []
+fromList = foldr insert Data.Map.empty
 
 insert :: String -> Trie -> Trie
-insert [] t = t
-insert w [] = fromWord w
-insert w@(c:[]) ((e@(TrieEdge ec ew et)):ts) = if c == ec
-                                               then (TrieEdge ec True et):ts
-                                               else e:(insert w ts)
-insert w@(c:cs) ((e@(TrieEdge ec ew et)):ts) = if c == ec
-                                               then (TrieEdge ec ew (insert cs et)):ts
-                                               else e:(insert w ts)
+insert [] = id
+insert (c:cs) = Data.Map.alter (\e -> Just (maybe (TrieEdge (cs == []) (fromWord cs)) (\(TrieEdge ew et) -> TrieEdge (cs == [] || ew) (insert cs et)) e)) c
 
 fromWord :: String -> Trie
-fromWord [] = []
-fromWord (c:[]) = [TrieEdge c True []]
-fromWord (c:cs) = [TrieEdge c False (fromWord cs)]
+fromWord = foldr (\c t -> Data.Map.fromList [(c, TrieEdge (t == Data.Map.empty) t)]) Data.Map.empty
 
 member :: String -> Trie -> Bool
-member [] _ = False
-member _ [] = False
-member w@(c:[]) ((TrieEdge ec ew et):ts) = if c == ec
-                                           then ew
-                                           else member w ts
-member w@(c:cs) ((TrieEdge ec ew et):ts) = if c == ec
-                                           then member cs et
-                                           else member w ts
+member [] t = False
+member (c:cs) t = maybe False (\(TrieEdge ew et) -> (cs == [] && ew) || member cs et) $ Data.Map.lookup c t
 
-matching :: Trie -> [String] -> [String]
-matching t ss = map reverse $ matching' t ss []
-                where matching' _ [] _ = []
-                      matching' [] _ _ = []
-                      matching' t ([]:ss) pw = matching' t ss pw
-                      matching' ((TrieEdge ec ew et):ts) p@((c:cs):ss) pw = if c == ec
-                                                                            then (if ew then (c:pw):(matching' et ss (c:pw)) else (matching' et ss (c:pw))) ++ (matching' ts (cs:ss) pw)
-                                                                            else matching' ts p pw
+-- matching dict ["at", "r", "ckt", "s"] -> fromList ["a", "arc", "ark", "art", "arcs", "arks", "arts"]
+matching :: Trie -> [String] -> Trie
+matching t [] = Data.Map.empty
+matching t (s:ss) = Data.Map.mapMaybeWithKey (\k (TrieEdge ew et) -> if elem k s then Just (TrieEdge ew (matching et ss)) else Nothing) t
