@@ -1,5 +1,6 @@
 module Trie where
 
+import qualified Data.List
 import qualified Data.Map
 
 type GaddagChar = Maybe Char
@@ -23,12 +24,15 @@ fromList = foldr insert empty
 
 insert :: String -> Gaddag -> Gaddag
 insert [] = id
-insert w = createPathA w
+insert w = insertGC (map Just w)
 
-createPathA :: String -> Gaddag -> Gaddag
-createPathA w = createPathA' (reverse w)
-                where createPathA' [] = id
-                      createPathA' (c:cs) = Data.Map.alter (\e -> Just (maybe (GaddagArc (cs == []) (createPathA' cs empty)) (\(GaddagArc ew et) -> GaddagArc (cs == [] || ew) (insert cs et)) e)) (Just c)
+delimit :: String -> [[GaddagChar]]
+delimit w = let gw = map Just w
+            in tail $ zipWith (\a b -> reverse a ++ [Nothing] ++ b) (Data.List.inits gw) (Data.List.tails gw)
+
+insertGC :: [GaddagChar] -> Gaddag -> Gaddag
+insertGC [] = id
+insertGC (c:cs) = Data.Map.alter (\e -> Just (maybe (GaddagArc (cs == []) (insertGC cs empty)) (\(GaddagArc ew et) -> GaddagArc (cs == [] || ew) (insertGC cs et)) e)) c
 
 --fromWord :: String -> Trie
 --fromWord = foldr (\c t -> Data.Map.fromList [(c, TrieEdge (t == empty) t)]) empty
