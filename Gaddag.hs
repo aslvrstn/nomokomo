@@ -5,16 +5,20 @@ import qualified Data.Map
 
 type GaddagChar = Maybe Char
 
+type GaddagWord = [GaddagChar]
+
 type Gaddag = Data.Map.Map GaddagChar GaddagArc
 
 data GaddagArc = GaddagArc Bool Gaddag deriving (Show, Eq)
 
-toList :: Gaddag -> [[GaddagChar]]
+toList :: Gaddag -> [GaddagWord]
 toList = Data.Map.foldWithKey (\c (GaddagArc w t) r -> let rest = (map (c:) (toList t))
                                                       in r ++ (if w then [c]:rest else rest)) []
+toString :: GaddagWord -> String
+toString = map (maybe '^' id)
 
-pretty :: [GaddagChar] -> String
-pretty = map (maybe '^' id)
+gFromString :: String -> GaddagWord
+gFromString = map Just
 
 empty :: Gaddag
 empty = Data.Map.empty
@@ -26,20 +30,17 @@ insert :: String -> Gaddag -> Gaddag
 insert [] g = g
 insert w g = foldr insertGC g (delimit w)
 
-delimit :: String -> [[GaddagChar]]
+delimit :: String -> [GaddagWord]
 delimit w = let gw = map Just w
             in tail $ zipWith (\a b -> reverse a ++ [Nothing] ++ b) (Data.List.inits gw) (Data.List.tails gw)
 
-insertGC :: [GaddagChar] -> Gaddag -> Gaddag
+insertGC :: GaddagWord -> Gaddag -> Gaddag
 insertGC [] = id
 insertGC (c:cs) = Data.Map.alter (\e -> Just (maybe (GaddagArc (cs == []) (insertGC cs empty)) (\(GaddagArc ew et) -> GaddagArc (cs == [] || ew) (insertGC cs et)) e)) c
 
---fromWord :: String -> Trie
---fromWord = foldr (\c t -> Data.Map.fromList [(c, TrieEdge (t == empty) t)]) empty
-
---member :: String -> Trie -> Bool
---member [] t = False
---member (c:cs) t = maybe False (\(TrieEdge ew et) -> (cs == [] && ew) || member cs et) $ Data.Map.lookup c t
+member :: GaddagWord -> Gaddag -> Bool
+member [] t = False
+member (c:cs) t = maybe False (\(GaddagArc ew et) -> (cs == [] && ew) || member cs et) $ Data.Map.lookup c t
 
 -- matching dict ["at", "r", "ckt", "s"] -> fromList ["a", "arc", "ark", "art", "arcs", "arks", "arts"]
 --matching :: Trie -> [String] -> Trie
