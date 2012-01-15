@@ -23,8 +23,8 @@ fromList :: [String] -> Gaddag
 fromList = foldr insert empty
 
 insert :: String -> Gaddag -> Gaddag
-insert [] = id
-insert w = insertGC (map Just w)
+insert [] g = g
+insert w g = foldr insertGC g (delimit w)
 
 delimit :: String -> [[GaddagChar]]
 delimit w = let gw = map Just w
