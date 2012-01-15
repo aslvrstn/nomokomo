@@ -1,4 +1,4 @@
-module Trie where
+module Gaddag where
 
 import qualified Data.List
 import qualified Data.Map
